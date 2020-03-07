@@ -164,7 +164,7 @@ void CAN_FDAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channe
 	case CrcField:
 	{
 		char number_str[128];
-		AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 15, number_str, 128);
+		AnalyzerHelpers::GetNumberString(frame.mData1, display_base, this->mAnalyzer->GetCRCBytes(), number_str, 128);
 
 		AddResultString("CRC");
 

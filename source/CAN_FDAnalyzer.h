@@ -37,6 +37,7 @@ public:
 	virtual const char* GetAnalyzerName() const;
 	virtual bool NeedsRerun();
 
+	U32 GetCRCBytes();
 
 protected: //analysis functions
 	void WaitFor7RecessiveBits();
@@ -82,6 +83,7 @@ protected: //analysis vars:
 	bool mStandardCanFD;
 	bool mRemoteFrame;
 	U32 mNumDataBytes;
+	U32 mCrcBytes;
 
 	std::vector<BitState> mControlField;
 	std::vector<BitState> mDataField;

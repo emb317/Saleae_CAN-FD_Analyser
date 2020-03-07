@@ -530,8 +530,6 @@ void CAN_FDAnalyzer::AnalyzeRawFrame()
 
 	/* End of data section */
 
-	U32 crc_bytes;
-
 	if ((frametype == FDIdentifierEx) || (frametype == FDIdentifier))
 	{
 		/* 6 additional bits in CAN-FD identifier frame prior to CRC Section */
@@ -584,15 +582,15 @@ void CAN_FDAnalyzer::AnalyzeRawFrame()
 		/* CRC length depends on packet data length. Stuffing bits are in fixed, known positions */
 		if (mNumDataBytes >= 20)
 		{
-			crc_bytes = 21;
+			mCrcBytes = 21;
 		}
 		else
 		{
-			crc_bytes = 17;
+			mCrcBytes = 17;
 		}
 
 		mCrcValue = 0;
-		for (U32 i = 0; i < crc_bytes; i++)
+		for (U32 i = 0; i < mCrcBytes; i++)
 		{
 			mCrcValue <<= 1;
 			BitState bit;
@@ -631,10 +629,10 @@ void CAN_FDAnalyzer::AnalyzeRawFrame()
 	{
 		/* CRC section for Standard CAN */		
 		/* Standard 11 or 29-bit CAN - always 15 bits and normal stuffing behaviour */
-		crc_bytes = 15;
+		mCrcBytes = 15;
 
 		mCrcValue = 0;
-		for (U32 i = 0; i < crc_bytes; i++)
+		for (U32 i = 0; i < mCrcBytes; i++)
 		{
 			mCrcValue <<= 1;
 			BitState bit;
@@ -929,4 +927,8 @@ Analyzer* CreateAnalyzer()
 void DestroyAnalyzer( Analyzer* analyzer )
 {
 	delete analyzer;
+}
+U32 CAN_FDAnalyzer::GetCRCBytes()
+{
+	return mCrcBytes;
 }
