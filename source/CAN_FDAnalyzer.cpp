@@ -679,6 +679,8 @@ void CAN_FDAnalyzer::AnalyzeRawFrame()
 	/* If using flexible data rate, fast bit timing should finish here */
     mBaudSwitch = false;
 
+	mRawFrameIndex += mBitRateFactor / 2 - 1;
+
 	BitState ackslot;
 	done = GetFixedFormFrameBit(ackslot, first_sample);
 
