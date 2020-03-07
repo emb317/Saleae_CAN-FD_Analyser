@@ -39,6 +39,7 @@ void CAN_FDAnalyzer::WorkerThread()
 			mCAN_FD->AdvanceToNextEdge();
 
 		//we're at the first DOMINANT edge of the frame
+		InitSampleOffsets();
 		GetRawFrame();
 		AnalyzeRawFrame();
 
@@ -123,7 +124,13 @@ void CAN_FDAnalyzer::GetRawFrame()
 	if (mCAN_FD->GetBitState() != mSettings->Dominant())
 		AnalyzerHelpers::Assert("GetFrameOrError assumes we start DOMINANT");
 
+	const double samples_per_bit = double( mSampleRateHz ) / double( mSettings->mBitRateData );
+
 	mStartOfFrame = mCAN_FD->GetSampleNumber();
+
+	double diff = 0;
+	U64 cur_pos = mStartOfFrame + (U64)( samples_per_bit * 0.5 );
+	diff += (double)samples_per_bit - (U32)samples_per_bit;
 
 	U32 i = 0;
 	U32 j = 0;
@@ -136,7 +143,10 @@ void CAN_FDAnalyzer::GetRawFrame()
 			return;
 		}
 
-		mCAN_FD->AdvanceToAbsPosition(mStartOfFrame + mSampleOffsets[i]);
+		mCAN_FD->AdvanceToAbsPosition( cur_pos );
+
+		mSampleOffsets[i] = (U32)( cur_pos - mStartOfFrame );
+
 		i++;
 
 		if (mCAN_FD->GetBitState() == mSettings->Dominant())
@@ -177,6 +187,18 @@ void CAN_FDAnalyzer::GetRawFrame()
 				//we're done.
 				break;
 			}
+		}
+
+		if( mCAN_FD->GetSampleOfNextEdge() < ( cur_pos + (U64)( samples_per_bit ) ) )
+		{
+			cur_pos = mCAN_FD->GetSampleOfNextEdge() + (U64)(0.5 * samples_per_bit );
+			diff = 0;
+		}
+		else
+		{
+			diff += (double)samples_per_bit - (U32)samples_per_bit;
+			if( diff >= 1.0 ) diff -= 1.0;
+			cur_pos += (U32)( samples_per_bit + diff );
 		}
 	}
 
@@ -861,7 +883,7 @@ bool CAN_FDAnalyzer::UnstuffRawFrameBit(BitState& result, U64& sample, bool rese
 		else
 		{
 			/* Puts next bit to process as the ESI bit */
-			mRawFrameIndex += (U32)(mBitRateFactor - 2);
+			mRawFrameIndex += (U32)(0.85 * mBitRateFactor) - 1;
 		}
 	}
 	else
