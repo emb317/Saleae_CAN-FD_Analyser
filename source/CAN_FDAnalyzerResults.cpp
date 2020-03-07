@@ -206,7 +206,7 @@ void CAN_FDAnalyzerResults::GenerateExportFile( const char* file, DisplayBase di
 	U64 trigger_sample = mAnalyzer->GetTriggerSample();
 	U32 sample_rate = mAnalyzer->GetSampleRate();
 
-	ss << "Time [s],Packet,Type,Identifier,Control,Data,CRC,ACK" << std::endl;
+	ss << "Time [s],Packet,Type,Identifier,Control,Data,Stuff,CRC,ACK" << std::endl;
 	U64 num_frames = GetNumFrames();
 	U64 num_packets = GetNumPackets();
 	for (U32 i = 0; i < num_packets; i++)
@@ -305,10 +305,24 @@ void CAN_FDAnalyzerResults::GenerateExportFile( const char* file, DisplayBase di
 		if (frame_id > last_frame_id)
 			continue;
 
+		frame = GetFrame( frame_id );
+		if( frame.mType == StuffCount )
+		{
+			AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 4, number_str, 128 );
+			ss << "," << number_str;
+			++frame_id;
+		}
+		else
+		{
+			ss << ",";
+		}
+		if( frame_id > last_frame_id )
+			continue;
+
 		frame = GetFrame(frame_id);
 		if (frame.mType == CrcField)
 		{
-			AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 15, number_str, 128);
+			AnalyzerHelpers::GetNumberString(frame.mData1, display_base, mAnalyzer->GetCRCBytes(), number_str, 128);
 			ss << "," << number_str;
 			++frame_id;
 		}
