@@ -144,6 +144,23 @@ void CAN_FDAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channe
 	}
 	break;
 
+	case StuffCount:
+	{
+		char number_str[128];
+		AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 4, number_str, 128 );
+
+		AddResultString( "StuffCount" );
+
+		std::stringstream ss;
+		ss << "StuffCount: " << number_str;
+		AddResultString( ss.str().c_str() );
+		ss.str( "" );
+
+		ss << "StuffCount value: " << number_str;
+		AddResultString( ss.str().c_str() );
+	}
+	break;
+
 	case CrcField:
 	{
 		char number_str[128];
@@ -416,6 +433,17 @@ void CAN_FDAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBa
 
 		ss << "Data Field Byte: " << number_str;
 		AddTabularText(ss.str().c_str());
+	}
+	break;
+	case StuffCount:
+	{
+		char number_str[128];
+		AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 4, number_str, 128 );
+
+		std::stringstream ss;
+
+		ss << "Stuff count: " << number_str;
+		AddTabularText( ss.str().c_str() );
 	}
 	break;
 	case CrcField:

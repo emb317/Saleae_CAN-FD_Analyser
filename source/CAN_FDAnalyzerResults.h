@@ -3,7 +3,7 @@
 
 #include <AnalyzerResults.h>
 
-enum CanFrameType { IdentifierField, IdentifierFieldEx, FDIdentifier, FDIdentifierEx, ControlField, DataField, CrcField, AckField, CanError };
+enum CanFrameType { IdentifierField, IdentifierFieldEx, FDIdentifier, FDIdentifierEx, ControlField, DataField, CrcField, AckField, CanError, StuffCount };
 #define REMOTE_FRAME ( 1 << 0 )
 
 class CAN_FDAnalyzer;

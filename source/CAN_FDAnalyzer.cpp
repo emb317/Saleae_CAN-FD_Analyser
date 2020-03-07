@@ -544,7 +544,7 @@ void CAN_FDAnalyzer::AnalyzeRawFrame()
 
 		/* Stuff count bit 2 */
 		BitState sc_bit2;
-		done = UnstuffRawFrameBit(sc_bit2, last_sample);
+		done = UnstuffRawFrameBit(sc_bit2, first_sample );
 		if (done == true)
 			return;
 
@@ -565,6 +565,13 @@ void CAN_FDAnalyzer::AnalyzeRawFrame()
 		done = UnstuffRawFrameBit(stuff_parity, last_sample);
 		if (done == true)
 			return;
+
+		Frame frame;
+		frame.mStartingSampleInclusive = first_sample;
+		frame.mEndingSampleInclusive = last_sample;
+		frame.mType = StuffCount;
+		frame.mData1 = ( sc_bit2 << 3) | ( sc_bit1 << 2 ) | ( sc_bit0 << 1 ) | stuff_parity;
+		mResults->AddFrame( frame );
 
 		/* Fixed Stuff bit 2 */
 		BitState fsb2;
